@@ -114,7 +114,7 @@ class ChangeTextTest {
     @Test
     fun testEmptyText() {
         waitForPackage(MODEL_PACKAGE)
-        
+
         val originalText = device.findObject(By.res(MODEL_PACKAGE, "textToBeChanged")).text
 
         // Тест 1: Пустая строка

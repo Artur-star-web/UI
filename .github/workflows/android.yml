@@ -16,16 +16,17 @@ jobs:
       uses: actions/setup-java@v3
       with:
         java-version: '17'
-        distribution: 'adopt'
+        distribution: 'temurin'  # ← Исправлено на temurin
         cache: gradle
 
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
     
     - name: Build with Gradle
-      run: ./gradlew build
-      
+      run: ./gradlew assembleDebug  # ← Лучше использовать assemble
+
   test:
+    needs: build  # ← Добавлена зависимость от build
     runs-on: macos-13
     steps:
     - uses: actions/checkout@v3
@@ -33,14 +34,17 @@ jobs:
       uses: actions/setup-java@v3
       with:
         java-version: '17'
-        distribution: 'adopt'
+        distribution: 'temurin'  # ← Исправлено на temurin
         cache: gradle
 
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
       
-    - name: run tests
+    - name: Run tests
       uses: reactivecircus/android-emulator-runner@v2
       with:
         api-level: 29
-        script: ./gradlew connectedCheck
+        target: google_apis
+        arch: x86_64
+        profile: pixel_4
+        script: ./gradlew connectedDebugAndroidTest  # ← Конкретная задача
