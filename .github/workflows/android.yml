@@ -7,26 +7,23 @@ on:
     branches: '*'
 
 jobs:
-  build:
+  unit-tests:
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v3
     - name: set up JDK 17
       uses: actions/setup-java@v3
       with:
         java-version: '17'
-        distribution: 'temurin'  # ← Исправлено на temurin
+        distribution: 'temurin'
         cache: gradle
-
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
-    
-    - name: Build with Gradle
-      run: ./gradlew assembleDebug  # ← Лучше использовать assemble
+    - name: Run unit tests
+      run: ./gradlew testDebugUnitTest
 
-  test:
-    needs: build  # ← Добавлена зависимость от build
+  instrumented-tests:
+    if: github.event_name == 'pull_request'  # Только для PR чтобы экономить время
     runs-on: macos-13
     steps:
     - uses: actions/checkout@v3
@@ -34,17 +31,17 @@ jobs:
       uses: actions/setup-java@v3
       with:
         java-version: '17'
-        distribution: 'temurin'  # ← Исправлено на temurin
+        distribution: 'temurin'
         cache: gradle
-
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
-      
-    - name: Run tests
+    - name: Run instrumented tests
       uses: reactivecircus/android-emulator-runner@v2
       with:
-        api-level: 29
+        api-level: 34  # ← Android 14 для Pixel 8
         target: google_apis
         arch: x86_64
-        profile: pixel_4
-        script: ./gradlew connectedDebugAndroidTest  # ← Конкретная задача
+        profile: pixel_8  # ← Конкретно Pixel 8
+        disable-animations: true
+        emulator-options: -no-audio -no-window -gpu swiftshader_indirect -no-boot-anim -cache-size 1024
+        script: ./gradlew connectedDebugAndroidTest

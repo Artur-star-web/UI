@@ -135,20 +135,18 @@ class ChangeTextTest {
         val testText = "Test for New Activity"
         waitForPackage(MODEL_PACKAGE)
 
-        // Вводим текст
-        device.findObject(By.res(MODEL_PACKAGE, "userInput")).text = testText
+        // Добавьте ожидание и проверку
+        val userInput = device.wait(Until.findObject(By.res(MODEL_PACKAGE, "userInput")), 5000)
+        assertNotNull("Поле ввода не найдено", userInput)
+        userInput!!.text = testText
 
-        // Нажимаем кнопку открытия Activity
-        device.findObject(By.text("OPEN TEXT IN ANOTHER ACTIVITY")).click()
+        val activityButton = device.wait(Until.findObject(By.text("OPEN TEXT IN ANOTHER ACTIVITY")), 3000)
+        assertNotNull("Кнопка открытия Activity не найдена", activityButton)
+        activityButton!!.click()
 
-        // Ждем появления второй Activity и находим TextView по resourceId
-        val textView = device.wait(
-            Until.findObject(By.res(MODEL_PACKAGE, "text")),
-            5000
-        )
-
+        val textView = device.wait(Until.findObject(By.res(MODEL_PACKAGE, "text")), 5000)
         assertNotNull("TextView не найден во второй Activity", textView)
-        assertEquals("Текст в TextView не совпадает с введенным", testText, textView.text)
+        assertEquals(testText, textView!!.text)
     }
 }
 
